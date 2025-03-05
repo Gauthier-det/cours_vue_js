@@ -1,12 +1,14 @@
 <script setup>
 import { ref, computed } from "vue";
+import PostCard from "@/components/PostCard.vue";
+
 //let text = "hello";
 const text = ref("");
 const trimmmedText = computed(() => text.value.trim());
 
 const posts = ref([]);
 
-const postsRevers = computed(() =>  posts.sort(createdAt));
+const postsRevers = computed(() =>  posts.value.toSorted((a, b) => b.createdAt - a.createdAt));
 
 
 
@@ -18,11 +20,25 @@ function addPost() {
     author: {
       username: "goat",
       avatarUrl: "https://media1.tenor.com/m/a5RGfluwSOgAAAAd/sylvian-delhoumi.gif"
-    }
+    },
+    like : 0
   };
   posts.value.push(newPost)
   
   text.value = "";
+}
+
+function deletePost(id){
+  posts.value = posts.value.filter((post) => post.id != id)
+}
+
+function likePost(id){ 
+  var post = posts.value.find((p)=>{
+    return p.id == id
+  })
+  if(post != null){
+    post.like++;
+  }
 }
 </script>
 
@@ -37,84 +53,8 @@ function addPost() {
 
       <h2 v-if="!posts.length">Aucun posts pour le moment</h2>
 
-      <article  v-for="(post, index) in postsRevers" :key="index" class="card">
-        <header>
-          <img :src="post.author.avatarUrl" alt="avatar" width="36" height="36">
-          <a>{{ post.author.username }}</a>
-        </header>
-        <p>
-          {{ post.content }}
-        </p>
-      </article>
+      <PostCard v-for="(post, index) in postsRevers" :key="index" class="card" :post="post" @delete="deletePost" @like="likePost(id)"/>
+
     </div>
   </main>
 </template>
-
-<style scoped>
-.container {
-  height: 100vh;
-  margin: 0 auto;
-  max-width: 640px;
-}
-.card {
-  background-color: var(--color-bg-secondary);
-  border-radius: 10px;
-  border: 1px solid var(--color-border);
-  margin-bottom: 1rem;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  margin-top: 1rem;
-  padding: 1rem 1.5rem;
-  width: 100%;
-}
-textarea {
-  background: none;
-  border: none;
-  color: var(--color-text-primary);
-  flex: 1;
-  margin-bottom: 1rem;
-  outline: none;
-  padding: 0.5rem 0;
-  resize: none;
-}
-button {
-  align-self: flex-end;
-  background: none;
-  border-radius: 10px;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  font-size: 1rem;
-  height: 40px;
-  padding: 0 1rem;
-}
-
-button:disabled{
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-article {
-  padding: 1rem;
-  overflow: hidden;
-}
-
-article p {
-  white-space: pre-wrap;
-}
-
-article header{
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-article img {
-  border-radius: 50%;
-}
-
-</style>
