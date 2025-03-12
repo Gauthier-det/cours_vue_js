@@ -1,5 +1,9 @@
 <script setup>
 import {TrashIcon, HandThumbUpIcon} from "@heroicons/vue/24/outline";
+import {HandThumbUpIcon as SolidHandThumbUpIcon} from "@heroicons/vue/24/solid";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const props = defineProps({
     post: {
@@ -16,16 +20,20 @@ function deletePost(){
 }
 
 function likePost(){
-    emit("like", props.post.id);
-    
+    emit("like", props.post.id)
 }
+
+function goToUserProfile(){
+    router.push({ name: "user", params: {username: props.post.author.username} });
+}
+
 </script>
 
 <template>
     <article class="card">
         <header>
           <img :src="post.author.avatarUrl" alt="avatar" width="36" height="36" class="avatar">
-          <a>{{ post.author.username }}</a>
+          <a @click="goToUserProfile">{{ post.author.username }}</a>
         </header>
         <p>
           {{ post.content }}
@@ -35,9 +43,9 @@ function likePost(){
             <button @click="deletePost" class="btn-icon">
                 <TrashIcon />
             </button>
-            <p>{{ post.like }}</p>
             <button @click="likePost" class="btn-icon">
-                <HandThumbUpIcon />
+                <HandThumbUpIcon v-if="!post.like"/>
+                <SolidHandThumbUpIcon v-else class="active"/>
             </button>
         </footer>
 
